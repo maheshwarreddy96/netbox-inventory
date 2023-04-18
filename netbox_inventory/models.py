@@ -171,6 +171,15 @@ class Asset(NetBoxModel):
         verbose_name='Warranty End',
     )
 
+    #Support contract
+    support_contract = models.ForeignKey(
+        help_text='Purchase through which this asset was purchased',
+        to='netbox_inventory.SupportContract',
+        on_delete=models.PROTECT,
+        related_name='assets',
+        blank=True,
+        null=True,
+    )
     comments = models.TextField(
         blank=True
     )
@@ -181,7 +190,7 @@ class Asset(NetBoxModel):
 
     clone_fields = [
         'status', 'device_type', 'module_type', 'inventoryitem_type', 'tenant', 'contact',
-        'storage_location', 'owner', 'purchase', 'warranty_start', 'warranty_end', 'comments'
+        'storage_location', 'owner', 'purchase', 'warranty_start', 'warranty_end', 'comments', 'support_contract'
     ]
 
     @property
@@ -529,3 +538,47 @@ class InventoryItemGroup(NestedGroupModel):
 
     def get_absolute_url(self):
         return reverse('plugins:netbox_inventory:inventoryitemgroup', args=[self.pk])
+    
+class SupportContract(NetBoxModel):
+    """
+    Represents a support contract of a set of Assets from a Supplier.
+    """
+    # name = models.CharField(
+    #     max_length=100
+    # )
+    supplier = models.ForeignKey(
+        help_text='Legal entity this purchase was made at',
+        to='netbox_inventory.Supplier',
+        on_delete=models.PROTECT,
+        related_name='support_contracts',
+        blank=False,
+        null=False,
+    )
+    start_date = models.DateField(
+        help_text='Date when support contract starts',
+        blank=True,
+        null=True,
+    )
+    end_date = models.DateField(
+        help_text='Date when support contract ends',
+        blank=True,
+        null=True,
+    )
+    contract_number = models.CharField(
+        help_text='Unique Number/ID associated with the contract',
+        blank=True,
+        null=True,
+    )
+
+    clone_fields = [
+        'supplier', 'start_date', 'end_date', 'contract_number'
+    ]
+
+    class Meta:
+        ordering = ['supplier', 'start_date']
+
+    def __str__(self):
+        return f'{self.supplier}'
+
+    def get_absolute_url(self):
+        return reverse('plugins:netbox_inventory:supportcontract', args=[self.pk])
