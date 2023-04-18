@@ -396,3 +396,41 @@ class InventoryItemGroupTable(NetBoxTable):
             'asset_count',
             'inventoryitem_type_count',
         )
+
+        
+class SupportContractTable(NetBoxTable):
+    supplier = tables.Column(
+        linkify=True,
+    )
+    asset_count = columns.LinkedCountColumn(
+        viewname='plugins:netbox_inventory:asset_list',
+        url_params={'support_contract_id': 'pk'},
+        verbose_name='Assets',
+    )
+    comments = columns.MarkdownColumn()
+    tags = columns.TagColumn()
+
+    class Meta(NetBoxTable.Meta):
+        model = Purchase
+        fields = (
+            'pk',
+            'id',
+            'supplier',
+            'start_date',
+            'end_date'
+            'contract_number',
+            'comments',
+            'asset_count',
+            'tags',
+            'created',
+            'last_updated',
+            'actions',
+        )
+        default_columns = (
+            'supplier',
+            'start_date',
+            'end_date'
+            'contract_number',
+            'asset_count',
+        )
+
